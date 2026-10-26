@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app import models  # noqa: F401  registra le entità
 from app.database import Base, engine
+from app.routers import auth
 
 Base.metadata.create_all(bind=engine)
 
@@ -10,6 +11,8 @@ app = FastAPI(
     description="API REST per la prenotazione di visite specialistiche.",
     version="0.1.0",
 )
+
+app.include_router(auth.router)
 
 
 @app.get("/health", tags=["Sistema"])
