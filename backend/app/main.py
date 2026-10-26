@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from app import models  # noqa: F401  registra le entità
 from app.database import Base, engine
-from app.routers import auth
+from app.routers import auth, catalogo, slot
 
 Base.metadata.create_all(bind=engine)
 
@@ -13,6 +13,8 @@ app = FastAPI(
 )
 
 app.include_router(auth.router)
+app.include_router(catalogo.router)
+app.include_router(slot.router)
 
 
 @app.get("/health", tags=["Sistema"])

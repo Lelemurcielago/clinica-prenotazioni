@@ -14,3 +14,11 @@ class Medico(Base):
     utente = relationship("Utente", back_populates="medico")
     specialita = relationship("Specialita", back_populates="medici")
     slot = relationship("Slot", back_populates="medico")
+
+    @property
+    def nome(self) -> str:
+        return self.utente.nome
+
+    @property
+    def cognome(self) -> str:
+        return self.utente.cognome
