@@ -8,6 +8,9 @@ from app.models import Slot, StatoSlot
 class SlotRepository:
     def __init__(self, db: Session):
         self.db = db
+    
+    def get_by_id(self, slot_id: int) -> Slot | None:
+        return self.db.get(Slot, slot_id)
 
     def liberi(self, medico_id: int, giorno: date | None = None) -> list[Slot]:
         query = self.db.query(Slot).filter(
