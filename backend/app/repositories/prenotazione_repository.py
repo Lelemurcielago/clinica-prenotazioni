@@ -1,6 +1,8 @@
-from sqlalchemy.orm import Session, joinedload
+from datetime import date, datetime, time, timedelta
 
-from app.models import Medico, Prenotazione, Slot
+from sqlalchemy.orm import Session, contains_eager, joinedload
+
+from app.models import Medico, Paziente, Prenotazione, Slot, StatoPrenotazione
 
 # Carica in un'unica query slot, medico, utente e specialità
 CARICA_DETTAGLI = joinedload(Prenotazione.slot).options(
@@ -46,3 +48,26 @@ class PrenotazioneRepository:
 
     def salva(self) -> None:
         self.db.commit()
+    
+    def agenda_medico(self, medico_id: int, giorno: date | None = None) -> list[Prenotazione]:
+        query = (
+            self.db.query(Prenotazione)
+            .join(Prenotazione.slot)
+            .options(
+                contains_eager(Prenotazione.slot),
+                joinedload(Prenotazione.paziente).joinedload(Paziente.utente),
+            )
+            .filter(
+                Slot.medico_id == medico_id,
+                Prenotazione.stato == StatoPrenotazione.CONFERMATA,
+            )
+        )
+        if giorno is not None:
+            inizio_giorno = datetime.combine(giorno, time.min)
+            query = query.filter(
+                Slot.inizio >= inizio_giorno,
+                Slot.inizio < inizio_giorno + timedelta(days=1),
+            )
+        else:
+            query = query.filter(Slot.inizio >= datetime.now())
+        return query.order_by(Slot.inizio).all()

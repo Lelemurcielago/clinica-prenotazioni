@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 
-SECRET_KEY = os.getenv("SECRET_KEY", "chiave-di-sviluppo-da-cambiare")
+SECRET_KEY = os.getenv("SECRET_KEY", "chiave-di-sviluppo-da-cambiare-in-produzione")
 ALGORITHM = "HS256"
 DURATA_TOKEN_MINUTI = 60
 
