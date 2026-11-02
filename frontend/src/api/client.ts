@@ -96,4 +96,8 @@ export const api = {
 
   agenda: (data?: string) =>
     richiesta<VoceAgenda[]>(`/medici/me/agenda${data ? `?data=${data}` : ""}`),
+    tuttePrenotazioni: () => richiesta<Prenotazione[]>("/prenotazioni"),
+
+  creaSlot: (dati: { medico_id?: number; inizio: string; fine: string }) =>
+    richiesta<Slot>("/slot", { method: "POST", body: JSON.stringify(dati) }),
 };

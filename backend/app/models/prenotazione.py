@@ -34,3 +34,11 @@ class Prenotazione(Base):
 
     paziente = relationship("Paziente", back_populates="prenotazioni")
     slot = relationship("Slot", back_populates="prenotazioni")
+    
+    @property
+    def paziente_nome(self) -> str:
+        return self.paziente.utente.nome
+
+    @property
+    def paziente_cognome(self) -> str:
+        return self.paziente.utente.cognome

@@ -12,7 +12,7 @@ export default function HomePage() {
       <p>
         Accesso effettuato come <strong>{utente?.ruolo}</strong>.
       </p>
-      {utente?.ruolo === "paziente" ? (
+      {utente?.ruolo === "paziente" && (
         <div className="azioni">
           <Link className="pulsante" to="/prenota">
             Prenota una visita
@@ -21,8 +21,20 @@ export default function HomePage() {
             Le mie prenotazioni
           </Link>
         </div>
-      ) : (
-        <p>Le funzioni per questo ruolo arrivano nel prossimo passo.</p>
+      )}
+      {utente?.ruolo === "medico" && (
+        <div className="azioni">
+          <Link className="pulsante" to="/agenda">
+            La mia agenda
+          </Link>
+        </div>
+      )}
+      {utente?.ruolo === "segreteria" && (
+        <div className="azioni">
+          <Link className="pulsante" to="/segreteria">
+            Gestione clinica
+          </Link>
+        </div>
       )}
     </div>
   );

@@ -25,6 +25,16 @@ export default function Layout() {
               <NavLink to="/prenotazioni">Le mie prenotazioni</NavLink>
             </nav>
           )}
+          {utente?.ruolo === "medico" && (
+            <nav className="menu">
+              <NavLink to="/agenda">La mia agenda</NavLink>
+            </nav>
+          )}
+          {utente?.ruolo === "segreteria" && (
+            <nav className="menu">
+              <NavLink to="/segreteria">Gestione clinica</NavLink>
+            </nav>
+          )}
         </div>
         <div className="utente">
           <span>

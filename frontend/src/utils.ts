@@ -23,3 +23,11 @@ export function formattaData(iso: string): string {
     year: "numeric",
   });
 }
+function due(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+// Data e ora locali senza fuso orario, come le salva il back-end
+export function isoLocale(d: Date): string {
+  return `${d.getFullYear()}-${due(d.getMonth() + 1)}-${due(d.getDate())}T${due(d.getHours())}:${due(d.getMinutes())}:00`;
+}

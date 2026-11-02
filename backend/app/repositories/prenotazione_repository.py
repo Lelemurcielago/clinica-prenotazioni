@@ -4,12 +4,15 @@ from sqlalchemy.orm import Session, contains_eager, joinedload
 
 from app.models import Medico, Paziente, Prenotazione, Slot, StatoPrenotazione
 
-# Carica in un'unica query slot, medico, utente e specialità
-CARICA_DETTAGLI = joinedload(Prenotazione.slot).options(
-    joinedload(Slot.medico).options(
-        joinedload(Medico.utente),
-        joinedload(Medico.specialita),
-    )
+# Carica in poche query slot, medico, utente, specialità e paziente
+CARICA_DETTAGLI = (
+    joinedload(Prenotazione.slot).options(
+        joinedload(Slot.medico).options(
+            joinedload(Medico.utente),
+            joinedload(Medico.specialita),
+        )
+    ),
+    joinedload(Prenotazione.paziente).joinedload(Paziente.utente),
 )
 
 
@@ -20,7 +23,7 @@ class PrenotazioneRepository:
     def get_by_id(self, prenotazione_id: int) -> Prenotazione | None:
         return (
             self.db.query(Prenotazione)
-            .options(CARICA_DETTAGLI)
+            .options(*CARICA_DETTAGLI)
             .filter(Prenotazione.id == prenotazione_id)
             .first()
         )
@@ -28,7 +31,7 @@ class PrenotazioneRepository:
     def del_paziente(self, paziente_id: int) -> list[Prenotazione]:
         return (
             self.db.query(Prenotazione)
-            .options(CARICA_DETTAGLI)
+            .options(*CARICA_DETTAGLI)
             .filter(Prenotazione.paziente_id == paziente_id)
             .order_by(Prenotazione.creata_il.desc())
             .all()
@@ -37,7 +40,7 @@ class PrenotazioneRepository:
     def tutte(self) -> list[Prenotazione]:
         return (
             self.db.query(Prenotazione)
-            .options(CARICA_DETTAGLI)
+            .options(*CARICA_DETTAGLI)
             .order_by(Prenotazione.creata_il.desc())
             .all()
         )
@@ -48,7 +51,7 @@ class PrenotazioneRepository:
 
     def salva(self) -> None:
         self.db.commit()
-    
+
     def agenda_medico(self, medico_id: int, giorno: date | None = None) -> list[Prenotazione]:
         query = (
             self.db.query(Prenotazione)

@@ -33,6 +33,8 @@ export type StatoPrenotazione = "confermata" | "annullata";
 export interface Prenotazione {
   id: number;
   paziente_id: number;
+  paziente_nome: string;
+  paziente_cognome: string;
   stato: StatoPrenotazione;
   motivo: string | null;
   creata_il: string;

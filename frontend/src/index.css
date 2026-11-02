@@ -96,3 +96,8 @@ button.slot.scelto { background: var(--blu); color: #fff; }
 .badge.annullata { background: #e6e9ee; color: #4b5563; }
 button.pericolo { background: #fff; color: var(--errore); border: 1px solid var(--errore); }
 button.pericolo:hover { background: #fdeceb; }
+.scheda + .scheda { margin-top: 1.5rem; }
+form > button { justify-self: start; }
+.esito { color: #14632f; font-size: 0.9rem; margin: 0; }
+label.casella { display: flex; align-items: center; gap: 0.5rem; font-weight: 500; margin-bottom: 0.5rem; }
+label.casella input { width: auto; }
