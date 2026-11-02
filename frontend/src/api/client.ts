@@ -1,4 +1,12 @@
-import type { RegistrazioneDati, Utente } from "../types";
+import type {
+  Medico,
+  Prenotazione,
+  RegistrazioneDati,
+  Slot,
+  Specialita,
+  Utente,
+  VoceAgenda,
+} from "../types";
 
 const BASE_URL = "http://127.0.0.1:8000";
 const CHIAVE_TOKEN = "salus_token";
@@ -66,4 +74,26 @@ export const api = {
     }),
 
   profilo: () => richiesta<Utente>("/auth/me"),
+
+  specialita: () => richiesta<Specialita[]>("/specialita"),
+
+  medici: (specialitaId?: number) =>
+    richiesta<Medico[]>(specialitaId ? `/medici?specialita_id=${specialitaId}` : "/medici"),
+
+  slotLiberi: (medicoId: number, data?: string) =>
+    richiesta<Slot[]>(`/medici/${medicoId}/slot${data ? `?data=${data}` : ""}`),
+
+  prenota: (slotId: number, motivo: string | null) =>
+    richiesta<Prenotazione>("/prenotazioni", {
+      method: "POST",
+      body: JSON.stringify({ slot_id: slotId, motivo }),
+    }),
+
+  miePrenotazioni: () => richiesta<Prenotazione[]>("/prenotazioni"),
+
+  disdici: (prenotazioneId: number) =>
+    richiesta<Prenotazione>(`/prenotazioni/${prenotazioneId}`, { method: "DELETE" }),
+
+  agenda: (data?: string) =>
+    richiesta<VoceAgenda[]>(`/medici/me/agenda${data ? `?data=${data}` : ""}`),
 };

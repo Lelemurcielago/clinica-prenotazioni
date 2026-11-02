@@ -57,3 +57,42 @@ button:disabled { opacity: 0.6; cursor: default; }
 button.secondario { background: transparent; border: 1px solid #fff; }
 
 .errore { color: var(--errore); font-size: 0.9rem; margin: 0; }
+.sinistra { display: flex; align-items: center; gap: 2rem; }
+.menu { display: flex; gap: 1.2rem; }
+.menu a { color: #fff; text-decoration: none; opacity: 0.8; padding-bottom: 2px; }
+.menu a.active { opacity: 1; border-bottom: 2px solid #fff; }
+
+.azioni { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+.pulsante {
+  display: inline-block;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  background: var(--blu);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+.pulsante:hover { background: var(--blu-scuro); }
+.pulsante.chiaro { background: #fff; color: var(--blu); border: 1px solid var(--blu); }
+
+.filtri { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+
+.giorno h4 { margin: 1rem 0 0.5rem; text-transform: capitalize; }
+.griglia-slot { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+button.slot { background: #fff; color: var(--blu); border: 1px solid var(--blu); }
+button.slot:hover { background: #e8f0fa; }
+button.slot.scelto { background: var(--blu); color: #fff; }
+
+.conferma { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--bordo); display: grid; gap: 0.8rem; }
+.conferma h3 { margin: 0; }
+.conferma p { margin: 0; }
+
+.riga { display: flex; justify-content: space-between; gap: 1rem; padding: 0.9rem 0; border-bottom: 1px solid var(--bordo); }
+.riga:last-child { border-bottom: 0; }
+.nota { color: #5b6573; font-size: 0.9rem; }
+
+.badge { padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; }
+.badge.confermata { background: #dcf5e4; color: #14632f; }
+.badge.annullata { background: #e6e9ee; color: #4b5563; }
+button.pericolo { background: #fff; color: var(--errore); border: 1px solid var(--errore); }
+button.pericolo:hover { background: #fdeceb; }

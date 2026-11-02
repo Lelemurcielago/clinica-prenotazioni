@@ -13,8 +13,11 @@ class SlotRepository:
         return self.db.get(Slot, slot_id)
 
     def liberi(self, medico_id: int, giorno: date | None = None) -> list[Slot]:
+        # Mai slot già trascorsi, anche se si indica un giorno preciso
         query = self.db.query(Slot).filter(
-            Slot.medico_id == medico_id, Slot.stato == StatoSlot.LIBERO
+            Slot.medico_id == medico_id,
+            Slot.stato == StatoSlot.LIBERO,
+            Slot.inizio >= datetime.now(),
         )
         if giorno is not None:
             inizio_giorno = datetime.combine(giorno, time.min)
@@ -22,8 +25,6 @@ class SlotRepository:
                 Slot.inizio >= inizio_giorno,
                 Slot.inizio < inizio_giorno + timedelta(days=1),
             )
-        else:
-            query = query.filter(Slot.inizio >= datetime.now())
         return query.order_by(Slot.inizio).all()
 
     def esiste_sovrapposizione(self, medico_id: int, inizio: datetime, fine: datetime) -> bool:

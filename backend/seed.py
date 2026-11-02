@@ -59,7 +59,7 @@ def main():
 
         creati = 0
         oggi = date.today()
-        for giorno in range(1, 8):
+        for giorno in range(1, 22):
             data = oggi + timedelta(days=giorno)
             if data.weekday() >= 5:  # niente sabato e domenica
                 continue
