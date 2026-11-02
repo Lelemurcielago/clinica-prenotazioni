@@ -1,0 +1,59 @@
+:root {
+  --blu: #1d5fa8;
+  --blu-scuro: #14447a;
+  --grigio: #f3f5f8;
+  --bordo: #d7dde5;
+  --errore: #b42318;
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  color: #1c2430;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--grigio); }
+a { color: var(--blu); }
+
+.intestazione {
+  background: var(--blu);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+}
+.intestazione h1 { font-size: 1.15rem; margin: 0; }
+.intestazione .utente { display: flex; gap: 1rem; align-items: center; }
+
+main { max-width: 900px; margin: 1.5rem auto; padding: 0 1rem; }
+.pagina-accesso { max-width: 420px; margin: 3rem auto; padding: 0 1rem; }
+
+.scheda {
+  background: #fff;
+  border: 1px solid var(--bordo);
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+form { display: grid; gap: 0.9rem; }
+label { display: grid; gap: 0.3rem; font-size: 0.9rem; font-weight: 600; }
+input, select {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--bordo);
+  border-radius: 6px;
+  font: inherit;
+}
+
+button {
+  padding: 0.6rem 1rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--blu);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+button:hover { background: var(--blu-scuro); }
+button:disabled { opacity: 0.6; cursor: default; }
+button.secondario { background: transparent; border: 1px solid #fff; }
+
+.errore { color: var(--errore); font-size: 0.9rem; margin: 0; }
