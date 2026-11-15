@@ -8,7 +8,8 @@ import type {
   VoceAgenda,
 } from "../types";
 
-const BASE_URL = "http://127.0.0.1:8000";
+// Indirizzo dell'API: configurabile con VITE_API_URL nel file .env
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
 const CHIAVE_TOKEN = "salus_token";
 
 export class ErroreApi extends Error {
@@ -32,6 +33,13 @@ export function rimuoviToken(): void {
   localStorage.removeItem(CHIAVE_TOKEN);
 }
 
+// Funzione chiamata quando il server rifiuta il token (scaduto o non valido)
+let gestoreTokenRifiutato: (() => void) | null = null;
+
+export function impostaGestoreTokenRifiutato(gestore: (() => void) | null): void {
+  gestoreTokenRifiutato = gestore;
+}
+
 async function richiesta<T>(percorso: string, opzioni: RequestInit = {}): Promise<T> {
   const headers = new Headers(opzioni.headers);
   headers.set("Content-Type", "application/json");
@@ -41,6 +49,11 @@ async function richiesta<T>(percorso: string, opzioni: RequestInit = {}): Promis
   }
 
   const risposta = await fetch(`${BASE_URL}${percorso}`, { ...opzioni, headers });
+
+  if (risposta.status === 401 && token && percorso !== "/auth/login") {
+    rimuoviToken();
+    gestoreTokenRifiutato?.();
+  }
 
   if (!risposta.ok) {
     let messaggio = "Errore imprevisto";
@@ -89,15 +102,20 @@ export const api = {
       body: JSON.stringify({ slot_id: slotId, motivo }),
     }),
 
-  miePrenotazioni: () => richiesta<Prenotazione[]>("/prenotazioni"),
+  // Il paziente riceve le proprie prenotazioni, la segreteria tutte
+  prenotazioni: () => richiesta<Prenotazione[]>("/prenotazioni"),
 
   disdici: (prenotazioneId: number) =>
     richiesta<Prenotazione>(`/prenotazioni/${prenotazioneId}`, { method: "DELETE" }),
 
   agenda: (data?: string) =>
     richiesta<VoceAgenda[]>(`/medici/me/agenda${data ? `?data=${data}` : ""}`),
-    tuttePrenotazioni: () => richiesta<Prenotazione[]>("/prenotazioni"),
+
+  mieiSlot: (data?: string) =>
+    richiesta<Slot[]>(`/medici/me/slot${data ? `?data=${data}` : ""}`),
 
   creaSlot: (dati: { medico_id?: number; inizio: string; fine: string }) =>
     richiesta<Slot>("/slot", { method: "POST", body: JSON.stringify(dati) }),
+
+  eliminaSlot: (slotId: number) => richiesta<Slot>(`/slot/${slotId}`, { method: "DELETE" }),
 };

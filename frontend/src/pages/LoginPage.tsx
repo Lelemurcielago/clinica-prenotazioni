@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { ErroreApi } from "../api/client";
 import { useAuth } from "../auth/contesto";
+import LayoutAccesso from "../components/LayoutAccesso";
+import { messaggioErrore } from "../utils";
 
 export default function LoginPage() {
-  const { utente, login } = useAuth();
+  const { utente, sessioneScaduta, login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,39 +22,47 @@ export default function LoginPage() {
       await login(email, password);
       navigate("/");
     } catch (err) {
-      setErrore(err instanceof ErroreApi ? err.message : "Impossibile contattare il server");
+      setErrore(messaggioErrore(err));
     } finally {
       setInvio(false);
     }
   }
 
   return (
-    <div className="pagina-accesso">
-      <div className="scheda">
-        <h2>Accedi</h2>
-        <form onSubmit={gestisciInvio}>
-          <label>
-            Email
-            <input type="email" value={email} required onChange={(e) => setEmail(e.target.value)} />
-          </label>
-          <label>
-            Password
-            <input
-              type="password"
-              value={password}
-              required
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </label>
-          {errore && <p className="errore">{errore}</p>}
-          <button type="submit" disabled={invio}>
-            {invio ? "Accesso in corso…" : "Accedi"}
-          </button>
-        </form>
-        <p>
-          Non hai un account? <Link to="/registrazione">Registrati come paziente</Link>
-        </p>
-      </div>
-    </div>
+    <LayoutAccesso>
+      <h2>Bentornato</h2>
+      <p className="sottotitolo">Accedi per gestire le tue visite.</p>
+      {sessioneScaduta && <p className="avviso">La sessione è scaduta: accedi di nuovo.</p>}
+      <form onSubmit={gestisciInvio}>
+        <label>
+          Email
+          <input
+            type="email"
+            value={email}
+            required
+            autoComplete="email"
+            placeholder="nome@esempio.it"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </label>
+        <label>
+          Password
+          <input
+            type="password"
+            value={password}
+            required
+            autoComplete="current-password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </label>
+        {errore && <p className="errore">{errore}</p>}
+        <button type="submit" className="grande" disabled={invio}>
+          {invio ? "Accesso in corso…" : "Accedi"}
+        </button>
+      </form>
+      <p className="cambio">
+        Non hai un account? <Link to="/registrazione">Registrati come paziente</Link>
+      </p>
+    </LayoutAccesso>
   );
 }

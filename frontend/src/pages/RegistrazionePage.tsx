@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { api, ErroreApi } from "../api/client";
+import { api } from "../api/client";
 import { useAuth } from "../auth/contesto";
+import LayoutAccesso from "../components/LayoutAccesso";
+import { codiceFiscaleValido, messaggioErrore, oggi } from "../utils";
 
 export default function RegistrazionePage() {
   const { utente, login } = useAuth();
@@ -42,8 +44,13 @@ export default function RegistrazionePage() {
     e.preventDefault();
     setErrore(null);
 
-    if (dati.codice_fiscale.length !== 16) {
-      setErrore("Il codice fiscale deve avere 16 caratteri");
+    const codiceFiscale = dati.codice_fiscale.trim().toUpperCase();
+    if (!codiceFiscaleValido(codiceFiscale)) {
+      setErrore("Il codice fiscale non è valido: controlla i 16 caratteri");
+      return;
+    }
+    if (dati.data_nascita >= oggi()) {
+      setErrore("La data di nascita deve essere nel passato");
       return;
     }
     if (dati.password.length < 8) {
@@ -53,37 +60,40 @@ export default function RegistrazionePage() {
 
     setInvio(true);
     try {
-      await api.registra({ ...dati, telefono: dati.telefono || null });
+      await api.registra({ ...dati, codice_fiscale: codiceFiscale, telefono: dati.telefono || null });
       await login(dati.email, dati.password);
       navigate("/");
     } catch (err) {
-      setErrore(err instanceof ErroreApi ? err.message : "Impossibile contattare il server");
+      setErrore(messaggioErrore(err));
     } finally {
       setInvio(false);
     }
   }
 
   return (
-    <div className="pagina-accesso">
-      <div className="scheda">
-        <h2>Registrazione paziente</h2>
-        <form onSubmit={gestisciInvio}>
+    <LayoutAccesso>
+      <h2>Crea il tuo account</h2>
+      <p className="sottotitolo">Registrati come paziente per prenotare le tue visite.</p>
+      <form onSubmit={gestisciInvio}>
+        <div className="campi-due">
           {campo("nome", "Nome")}
           {campo("cognome", "Cognome")}
-          {campo("email", "Email", "email")}
-          {campo("telefono", "Telefono (facoltativo)", "tel", false)}
+        </div>
+        {campo("email", "Email", "email")}
+        <div className="campi-due">
           {campo("codice_fiscale", "Codice fiscale")}
           {campo("data_nascita", "Data di nascita", "date")}
-          {campo("password", "Password (almeno 8 caratteri)", "password")}
-          {errore && <p className="errore">{errore}</p>}
-          <button type="submit" disabled={invio}>
-            {invio ? "Registrazione in corso…" : "Registrati"}
-          </button>
-        </form>
-        <p>
-          Hai già un account? <Link to="/login">Accedi</Link>
-        </p>
-      </div>
-    </div>
+        </div>
+        {campo("telefono", "Telefono (facoltativo)", "tel", false)}
+        {campo("password", "Password (almeno 8 caratteri)", "password")}
+        {errore && <p className="errore">{errore}</p>}
+        <button type="submit" className="grande" disabled={invio}>
+          {invio ? "Registrazione in corso…" : "Registrati"}
+        </button>
+      </form>
+      <p className="cambio">
+        Hai già un account? <Link to="/login">Accedi</Link>
+      </p>
+    </LayoutAccesso>
   );
 }

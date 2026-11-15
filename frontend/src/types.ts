@@ -25,7 +25,7 @@ export interface Slot {
   medico_id: number;
   inizio: string;
   fine: string;
-  stato: "libero" | "occupato";
+  stato: "libero" | "occupato" | "rimosso";
 }
 
 export type StatoPrenotazione = "confermata" | "annullata";

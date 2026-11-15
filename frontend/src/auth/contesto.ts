@@ -4,6 +4,7 @@ import type { Utente } from "../types";
 export interface ContestoAuth {
   utente: Utente | null;
   caricamento: boolean;
+  sessioneScaduta: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
