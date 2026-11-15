@@ -7,6 +7,10 @@ di avere una visione d'insieme della clinica.
 Il progetto è composto da un **back-end** REST in Python (FastAPI) e da un **front-end**
 single-page in React + TypeScript.
 
+> 📄 Il **rapporto del Project Work** (contesto, UML, API, processo di sviluppo, test funzionali con
+> screenshot) è in [`docs/rapporto.md`](docs/rapporto.md). La specifica OpenAPI è in
+> [`docs/api/openapi.json`](docs/api/openapi.json).
+
 ---
 
 ## Funzionalità

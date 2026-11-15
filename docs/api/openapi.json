@@ -1,0 +1,1435 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Poliambulatorio Salus - API prenotazioni",
+    "description": "\nAPI REST del **Poliambulatorio Salus** per la prenotazione di visite specialistiche.\n\n**Autenticazione**: `POST /auth/login` restituisce un token JWT valido 60 minuti, da inviare\nnell'intestazione `Authorization: Bearer <token>` (pulsante *Authorize* in questa pagina).\n\n**Ruoli**: *paziente* (si registra e prenota), *medico* (agenda e disponibilità),\n*segreteria* (vede e gestisce tutte le prenotazioni).\n\nGli errori hanno sempre la forma `{\"detail\": \"messaggio\"}`.\n",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Autenticazione"
+        ],
+        "summary": "Registra",
+        "description": "Registra un nuovo paziente.",
+        "operationId": "registra_auth_register_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrazionePaziente"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtenteOut"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Email o codice fiscale già registrati",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Autenticazione"
+        ],
+        "summary": "Login",
+        "description": "Restituisce un token JWT se le credenziali sono corrette.",
+        "operationId": "login_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Token"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenziali non valide",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Autenticazione"
+        ],
+        "summary": "Profilo",
+        "description": "Profilo dell'utente autenticato.",
+        "operationId": "profilo_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UtenteOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante, non valido o scaduto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/medici/me/agenda": {
+      "get": {
+        "tags": [
+          "Agenda"
+        ],
+        "summary": "Agenda Medico",
+        "description": "Visite confermate del medico autenticato, per un giorno o da oggi in poi.",
+        "operationId": "agenda_medico_medici_me_agenda_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "data",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Data"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VoceAgenda"
+                  },
+                  "title": "Response Agenda Medico Medici Me Agenda Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante, non valido o scaduto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "L'utente non ha il ruolo o i permessi necessari",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Risorsa non trovata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/medici/me/slot": {
+      "get": {
+        "tags": [
+          "Agenda"
+        ],
+        "summary": "Miei Slot",
+        "description": "Disponibilità del medico autenticato (libere e prenotate), per un giorno o da oggi in poi.",
+        "operationId": "miei_slot_medici_me_slot_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "data",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Data"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SlotOut"
+                  },
+                  "title": "Response Miei Slot Medici Me Slot Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante, non valido o scaduto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "L'utente non ha il ruolo o i permessi necessari",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Risorsa non trovata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/specialita": {
+      "get": {
+        "tags": [
+          "Catalogo"
+        ],
+        "summary": "Elenco Specialita",
+        "description": "Elenco delle specialità offerte dalla clinica.",
+        "operationId": "elenco_specialita_specialita_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SpecialitaOut"
+                  },
+                  "type": "array",
+                  "title": "Response Elenco Specialita Specialita Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/medici": {
+      "get": {
+        "tags": [
+          "Catalogo"
+        ],
+        "summary": "Elenco Medici",
+        "description": "Elenco dei medici, filtrabile per specialità.",
+        "operationId": "elenco_medici_medici_get",
+        "parameters": [
+          {
+            "name": "specialita_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Specialita Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MedicoOut"
+                  },
+                  "title": "Response Elenco Medici Medici Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/medici/{medico_id}/slot": {
+      "get": {
+        "tags": [
+          "Catalogo"
+        ],
+        "summary": "Slot Liberi",
+        "description": "Slot liberi di un medico, per un giorno (AAAA-MM-GG) o da oggi in poi.",
+        "operationId": "slot_liberi_medici__medico_id__slot_get",
+        "parameters": [
+          {
+            "name": "medico_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Medico Id"
+            }
+          },
+          {
+            "name": "data",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Data"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SlotOut"
+                  },
+                  "title": "Response Slot Liberi Medici  Medico Id  Slot Get"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Risorsa non trovata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/slot": {
+      "post": {
+        "tags": [
+          "Disponibilità"
+        ],
+        "summary": "Crea Slot",
+        "description": "Crea uno slot di disponibilità. Il medico lo crea per sé, la segreteria indica medico_id.",
+        "operationId": "crea_slot_slot_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SlotCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlotOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante, non valido o scaduto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "L'utente non ha il ruolo o i permessi necessari",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Risorsa non trovata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lo slot si sovrappone a uno esistente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/slot/{slot_id}": {
+      "delete": {
+        "tags": [
+          "Disponibilità"
+        ],
+        "summary": "Rimuovi Slot",
+        "description": "Elimina uno slot libero: passa a 'rimosso' e non è più prenotabile.",
+        "operationId": "rimuovi_slot_slot__slot_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "slot_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Slot Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SlotOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante, non valido o scaduto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "L'utente non ha il ruolo o i permessi necessari",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Risorsa non trovata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Lo slot è prenotato",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/prenotazioni": {
+      "get": {
+        "tags": [
+          "Prenotazioni"
+        ],
+        "summary": "Elenco",
+        "description": "Le prenotazioni del paziente; la segreteria vede tutte quelle della clinica.",
+        "operationId": "elenco_prenotazioni_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PrenotazioneOut"
+                  },
+                  "type": "array",
+                  "title": "Response Elenco Prenotazioni Get"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante, non valido o scaduto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "L'utente non ha il ruolo o i permessi necessari",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Prenotazioni"
+        ],
+        "summary": "Prenota",
+        "description": "Prenota uno slot libero (solo pazienti).",
+        "operationId": "prenota_prenotazioni_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrenotazioneCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrenotazioneOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante, non valido o scaduto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "L'utente non ha il ruolo o i permessi necessari",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Risorsa non trovata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Slot già prenotato o già trascorso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/prenotazioni/{prenotazione_id}": {
+      "delete": {
+        "tags": [
+          "Prenotazioni"
+        ],
+        "summary": "Disdici",
+        "description": "Disdice una prenotazione: passa ad 'annullata' e lo slot torna libero.",
+        "operationId": "disdici_prenotazioni__prenotazione_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "prenotazione_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Prenotazione Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrenotazioneOut"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token mancante, non valido o scaduto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "L'utente non ha il ruolo o i permessi necessari",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Risorsa non trovata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Prenotazione già annullata o visita già passata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errore"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "Sistema"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Errore": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "Errore",
+        "description": "Corpo delle risposte di errore: un messaggio leggibile dall'utente."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Login": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "Login"
+      },
+      "MedicoOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "cognome": {
+            "type": "string",
+            "title": "Cognome"
+          },
+          "specialita": {
+            "$ref": "#/components/schemas/SpecialitaOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "cognome",
+          "specialita"
+        ],
+        "title": "MedicoOut"
+      },
+      "PrenotazioneCreate": {
+        "properties": {
+          "slot_id": {
+            "type": "integer",
+            "title": "Slot Id"
+          },
+          "motivo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slot_id"
+        ],
+        "title": "PrenotazioneCreate"
+      },
+      "PrenotazioneOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "paziente_id": {
+            "type": "integer",
+            "title": "Paziente Id"
+          },
+          "stato": {
+            "$ref": "#/components/schemas/StatoPrenotazione"
+          },
+          "motivo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo"
+          },
+          "creata_il": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Creata Il"
+          },
+          "slot": {
+            "$ref": "#/components/schemas/SlotDettaglioOut"
+          },
+          "paziente_nome": {
+            "type": "string",
+            "title": "Paziente Nome"
+          },
+          "paziente_cognome": {
+            "type": "string",
+            "title": "Paziente Cognome"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "paziente_id",
+          "stato",
+          "motivo",
+          "creata_il",
+          "slot",
+          "paziente_nome",
+          "paziente_cognome"
+        ],
+        "title": "PrenotazioneOut"
+      },
+      "RegistrazionePaziente": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 8,
+            "title": "Password"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Nome"
+          },
+          "cognome": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Cognome"
+          },
+          "telefono": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 30
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefono"
+          },
+          "codice_fiscale": {
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 16,
+            "title": "Codice Fiscale"
+          },
+          "data_nascita": {
+            "type": "string",
+            "format": "date",
+            "title": "Data Nascita"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password",
+          "nome",
+          "cognome",
+          "codice_fiscale",
+          "data_nascita"
+        ],
+        "title": "RegistrazionePaziente"
+      },
+      "Ruolo": {
+        "type": "string",
+        "enum": [
+          "paziente",
+          "medico",
+          "segreteria"
+        ],
+        "title": "Ruolo"
+      },
+      "SlotCreate": {
+        "properties": {
+          "medico_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Medico Id"
+          },
+          "inizio": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Inizio"
+          },
+          "fine": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fine"
+          }
+        },
+        "type": "object",
+        "required": [
+          "inizio",
+          "fine"
+        ],
+        "title": "SlotCreate"
+      },
+      "SlotDettaglioOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "medico_id": {
+            "type": "integer",
+            "title": "Medico Id"
+          },
+          "inizio": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Inizio"
+          },
+          "fine": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fine"
+          },
+          "stato": {
+            "$ref": "#/components/schemas/StatoSlot"
+          },
+          "medico": {
+            "$ref": "#/components/schemas/MedicoOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "medico_id",
+          "inizio",
+          "fine",
+          "stato",
+          "medico"
+        ],
+        "title": "SlotDettaglioOut"
+      },
+      "SlotOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "medico_id": {
+            "type": "integer",
+            "title": "Medico Id"
+          },
+          "inizio": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Inizio"
+          },
+          "fine": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fine"
+          },
+          "stato": {
+            "$ref": "#/components/schemas/StatoSlot"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "medico_id",
+          "inizio",
+          "fine",
+          "stato"
+        ],
+        "title": "SlotOut"
+      },
+      "SpecialitaOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome"
+        ],
+        "title": "SpecialitaOut"
+      },
+      "StatoPrenotazione": {
+        "type": "string",
+        "enum": [
+          "confermata",
+          "annullata"
+        ],
+        "title": "StatoPrenotazione"
+      },
+      "StatoSlot": {
+        "type": "string",
+        "enum": [
+          "libero",
+          "occupato",
+          "rimosso"
+        ],
+        "title": "StatoSlot"
+      },
+      "Token": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token"
+        ],
+        "title": "Token"
+      },
+      "UtenteOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "cognome": {
+            "type": "string",
+            "title": "Cognome"
+          },
+          "ruolo": {
+            "$ref": "#/components/schemas/Ruolo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "nome",
+          "cognome",
+          "ruolo"
+        ],
+        "title": "UtenteOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VoceAgenda": {
+        "properties": {
+          "prenotazione_id": {
+            "type": "integer",
+            "title": "Prenotazione Id"
+          },
+          "inizio": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Inizio"
+          },
+          "fine": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fine"
+          },
+          "motivo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivo"
+          },
+          "paziente_nome": {
+            "type": "string",
+            "title": "Paziente Nome"
+          },
+          "paziente_cognome": {
+            "type": "string",
+            "title": "Paziente Cognome"
+          }
+        },
+        "type": "object",
+        "required": [
+          "prenotazione_id",
+          "inizio",
+          "fine",
+          "motivo",
+          "paziente_nome",
+          "paziente_cognome"
+        ],
+        "title": "VoceAgenda"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Autenticazione",
+      "description": "Registrazione dei pazienti, login e profilo."
+    },
+    {
+      "name": "Catalogo",
+      "description": "Specialità, medici e slot liberi. Pubblico."
+    },
+    {
+      "name": "Prenotazioni",
+      "description": "Prenotazione e disdetta delle visite."
+    },
+    {
+      "name": "Agenda",
+      "description": "Visite e disponibilità del medico autenticato."
+    },
+    {
+      "name": "Disponibilità",
+      "description": "Creazione ed eliminazione degli slot."
+    },
+    {
+      "name": "Sistema",
+      "description": "Stato del servizio."
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="1000" height="640" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13">
+  <title>Diagramma dei casi d'uso - Salus Prenotazioni</title>
+  <defs>
+    <marker id="aperta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10" fill="none" stroke="#475569" stroke-width="1.4"/>
+    </marker>
+    <marker id="triangolo" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="14" markerHeight="14" orient="auto-start-reverse">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#fff" stroke="#1f2937" stroke-width="1.2"/>
+    </marker>
+    <g id="attore" fill="none" stroke="#1f2937" stroke-width="1.8" stroke-linecap="round">
+      <circle cx="0" cy="0" r="11" fill="#fff"/>
+      <path d="M0 11 V48 M-19 25 H19 M0 48 L-14 72 M0 48 L14 72"/>
+    </g>
+  </defs>
+
+  <rect width="1000" height="640" fill="#ffffff"/>
+
+  <!-- Confine del sistema -->
+  <rect x="262" y="18" width="488" height="604" rx="10" fill="#f8fafc" stroke="#64748b" stroke-width="1.4"/>
+  <text x="738" y="40" text-anchor="end" font-weight="700" fill="#334155">Sistema «Salus Prenotazioni»</text>
+
+  <!-- Associazioni attore - caso d'uso -->
+  <g stroke="#1f2937" stroke-width="1.2">
+    <!-- Visitatore -->
+    <line x1="125" y1="110" x2="282" y2="70"/>
+    <line x1="125" y1="110" x2="280" y2="150"/>
+    <!-- Paziente -->
+    <line x1="125" y1="405" x2="282" y2="240"/>
+    <line x1="125" y1="405" x2="280" y2="315"/>
+    <line x1="125" y1="405" x2="282" y2="395"/>
+    <line x1="125" y1="405" x2="535" y2="470"/>
+    <line x1="125" y1="405" x2="512" y2="545"/>
+    <!-- Medico -->
+    <line x1="875" y1="140" x2="728" y2="110"/>
+    <line x1="875" y1="140" x2="728" y2="185"/>
+    <line x1="875" y1="140" x2="728" y2="260"/>
+    <line x1="875" y1="140" x2="705" y2="470"/>
+    <line x1="875" y1="140" x2="728" y2="545"/>
+    <!-- Segreteria -->
+    <line x1="875" y1="425" x2="728" y2="185"/>
+    <line x1="875" y1="425" x2="728" y2="260"/>
+    <line x1="875" y1="425" x2="730" y2="345"/>
+    <line x1="875" y1="425" x2="498" y2="395"/>
+    <line x1="875" y1="425" x2="705" y2="470"/>
+    <line x1="875" y1="425" x2="728" y2="545"/>
+  </g>
+
+  <!-- Generalizzazione: il Paziente è un Visitatore registrato -->
+  <line x1="100" y1="365" x2="100" y2="198" stroke="#1f2937" stroke-width="1.2" marker-end="url(#triangolo)"/>
+
+  <!-- «include» -->
+  <line x1="390" y1="214" x2="390" y2="182" stroke="#475569" stroke-width="1.3" stroke-dasharray="5 4" marker-end="url(#aperta)"/>
+  <text x="398" y="203" font-size="11.5" fill="#475569" font-style="italic">«include»</text>
+
+  <!-- Casi d'uso -->
+  <g fill="#e7f1fc" stroke="#0b6bcb" stroke-width="1.4">
+    <ellipse cx="390" cy="70" rx="108" ry="25"/>
+    <ellipse cx="390" cy="150" rx="110" ry="30"/>
+    <ellipse cx="390" cy="240" rx="108" ry="25"/>
+    <ellipse cx="390" cy="315" rx="110" ry="30"/>
+    <ellipse cx="390" cy="395" rx="108" ry="25"/>
+    <ellipse cx="620" cy="110" rx="108" ry="25"/>
+    <ellipse cx="620" cy="185" rx="108" ry="25"/>
+    <ellipse cx="620" cy="260" rx="108" ry="25"/>
+    <ellipse cx="620" cy="345" rx="110" ry="30"/>
+    <ellipse cx="620" cy="470" rx="108" ry="25"/>
+    <ellipse cx="620" cy="545" rx="108" ry="25"/>
+  </g>
+  <g fill="#0f1b2d" text-anchor="middle">
+    <text x="390" y="74.5">Registrarsi</text>
+    <text x="390" y="146">Consultare specialità,<tspan x="390" dy="17">medici e orari liberi</tspan></text>
+    <text x="390" y="244.5">Prenotare una visita</text>
+    <text x="390" y="311">Consultare le proprie<tspan x="390" dy="17">prenotazioni</tspan></text>
+    <text x="390" y="399.5">Disdire una prenotazione</text>
+    <text x="620" y="114.5">Consultare l'agenda</text>
+    <text x="620" y="189.5">Creare una disponibilità</text>
+    <text x="620" y="264.5">Eliminare una disponibilità</text>
+    <text x="620" y="341">Consultare tutte</text>
+    <text x="620" y="358">le prenotazioni</text>
+    <text x="620" y="474.5">Accedere</text>
+    <text x="620" y="549.5">Consultare la dashboard</text>
+  </g>
+
+  <!-- Attori -->
+  <use href="#attore" x="100" y="85"/>
+  <text x="100" y="180" text-anchor="middle" font-weight="600" fill="#0f1b2d">Visitatore</text>
+  <use href="#attore" x="100" y="380"/>
+  <text x="100" y="475" text-anchor="middle" font-weight="600" fill="#0f1b2d">Paziente</text>
+  <use href="#attore" x="900" y="115"/>
+  <text x="900" y="210" text-anchor="middle" font-weight="600" fill="#0f1b2d">Medico</text>
+  <use href="#attore" x="900" y="400"/>
+  <text x="900" y="495" text-anchor="middle" font-weight="600" fill="#0f1b2d">Segreteria</text>
+</svg>
