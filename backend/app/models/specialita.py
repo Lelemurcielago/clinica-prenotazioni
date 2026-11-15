@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from pydantic import BaseModel, ConfigDict
 
 from app.database import Base
 
@@ -12,5 +11,3 @@ class Specialita(Base):
     nome = Column(String(100), unique=True, nullable=False)
 
     medici = relationship("Medico", back_populates="specialita")
-    
-    

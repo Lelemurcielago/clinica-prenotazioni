@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session, contains_eager, joinedload
 
-from app.models import Medico
+from app.models import Medico, Utente
 
 
 class MedicoRepository:
@@ -15,7 +15,7 @@ class MedicoRepository:
         )
         if specialita_id is not None:
             query = query.filter(Medico.specialita_id == specialita_id)
-        return query.order_by(Medico.utente.property.mapper.class_.cognome).all()
+        return query.order_by(Utente.cognome, Utente.nome).all()
 
     def get_by_id(self, medico_id: int) -> Medico | None:
         return self.db.get(Medico, medico_id)

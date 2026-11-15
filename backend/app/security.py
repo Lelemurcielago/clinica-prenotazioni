@@ -1,12 +1,11 @@
-import os
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
 import jwt
 
-SECRET_KEY = os.getenv("SECRET_KEY", "chiave-di-sviluppo-da-cambiare-in-produzione")
+from app.config import DURATA_TOKEN_MINUTI, SECRET_KEY
+
 ALGORITHM = "HS256"
-DURATA_TOKEN_MINUTI = 60
 
 
 def hash_password(password: str) -> str:

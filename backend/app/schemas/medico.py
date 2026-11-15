@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-from app.schemas.specialista import SpecialitaOut
+from app.schemas.specialita import SpecialitaOut
 
 
 class MedicoOut(BaseModel):

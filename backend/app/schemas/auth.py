@@ -1,8 +1,17 @@
+import re
 from datetime import date
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 from app.models.enums import Ruolo
+
+# Struttura del codice fiscale: cognome (3), nome (3), anno (2), mese (1),
+# giorno e sesso (2), comune (4), carattere di controllo (1).
+# Nelle parti numeriche sono ammesse anche le lettere usate per l'omocodia.
+CIFRA = "[0-9LMNPQRSTUV]"
+FORMATO_CODICE_FISCALE = re.compile(
+    rf"^[A-Z]{{6}}{CIFRA}{{2}}[ABCDEHLMPRST]{CIFRA}{{2}}[A-Z]{CIFRA}{{3}}[A-Z]$"
+)
 
 
 class RegistrazionePaziente(BaseModel):
@@ -16,8 +25,18 @@ class RegistrazionePaziente(BaseModel):
 
     @field_validator("codice_fiscale")
     @classmethod
-    def codice_fiscale_maiuscolo(cls, valore: str) -> str:
-        return valore.upper()
+    def codice_fiscale_valido(cls, valore: str) -> str:
+        valore = valore.strip().upper()
+        if not FORMATO_CODICE_FISCALE.match(valore):
+            raise ValueError("Formato del codice fiscale non valido")
+        return valore
+
+    @field_validator("data_nascita")
+    @classmethod
+    def data_nascita_nel_passato(cls, valore: date) -> date:
+        if valore >= date.today():
+            raise ValueError("La data di nascita deve essere nel passato")
+        return valore
 
 
 class Login(BaseModel):

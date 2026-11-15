@@ -10,6 +10,9 @@ class Ruolo(str, enum.Enum):
 class StatoSlot(str, enum.Enum):
     LIBERO = "libero"
     OCCUPATO = "occupato"
+    # Eliminato da medico o segreteria: resta nel database
+    # perché può avere prenotazioni annullate nello storico
+    RIMOSSO = "rimosso"
 
 
 class StatoPrenotazione(str, enum.Enum):

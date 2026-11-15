@@ -25,6 +25,5 @@ class PrenotazioneOut(BaseModel):
     motivo: str | None
     creata_il: datetime
     slot: SlotDettaglioOut
-    paziente_id: int
     paziente_nome: str
     paziente_cognome: str

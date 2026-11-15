@@ -7,8 +7,10 @@ from app.database import get_db
 from app.dependencies import richiede_ruoli
 from app.models import Ruolo, Utente
 from app.schemas.agenda import VoceAgenda
+from app.schemas.slot import SlotOut
 from app.services.agenda_service import AgendaService
 from app.services.catalogo_service import MedicoNonTrovato
+from app.services.slot_service import SlotService
 
 router = APIRouter(tags=["Agenda"])
 
@@ -22,5 +24,18 @@ def agenda_medico(
     """Visite confermate del medico autenticato, per un giorno o da oggi in poi."""
     try:
         return AgendaService(db).agenda(utente, data)
+    except MedicoNonTrovato:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Profilo medico non trovato")
+
+
+@router.get("/medici/me/slot", response_model=list[SlotOut])
+def miei_slot(
+    data: date | None = None,
+    utente: Utente = Depends(richiede_ruoli(Ruolo.MEDICO)),
+    db: Session = Depends(get_db),
+):
+    """Disponibilità del medico autenticato (libere e prenotate), per un giorno o da oggi in poi."""
+    try:
+        return SlotService(db).miei_slot(utente, data)
     except MedicoNonTrovato:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Profilo medico non trovato")

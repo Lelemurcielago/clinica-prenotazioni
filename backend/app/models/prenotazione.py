@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, Index, Integer, String, text
 from sqlalchemy.orm import relationship
@@ -30,11 +30,12 @@ class Prenotazione(Base):
         default=StatoPrenotazione.CONFERMATA,
     )
     motivo = Column(String(500))
-    creata_il = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    # Ora locale senza fuso orario, come gli orari degli slot
+    creata_il = Column(DateTime, nullable=False, default=datetime.now)
 
     paziente = relationship("Paziente", back_populates="prenotazioni")
     slot = relationship("Slot", back_populates="prenotazioni")
-    
+
     @property
     def paziente_nome(self) -> str:
         return self.paziente.utente.nome

@@ -23,10 +23,12 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+# L'agenda va registrata prima del catalogo: altrimenti "/medici/me/slot"
+# verrebbe letto come "/medici/{medico_id}/slot" con medico_id = "me"
+app.include_router(agenda.router)
 app.include_router(catalogo.router)
 app.include_router(slot.router)
 app.include_router(prenotazioni.router)
-app.include_router(agenda.router)
 
 
 @app.get("/health", tags=["Sistema"])

@@ -42,3 +42,20 @@ def test_profilo_senza_token_rifiutato(client):
 def test_password_troppo_corta(client):
     r = client.post("/auth/register", json={**DATI, "password": "corta"})
     assert r.status_code == 422
+
+def test_codice_fiscale_con_formato_errato(client):
+    r = client.post("/auth/register", json={**DATI, "codice_fiscale": "1234567890ABCDEF"})
+    assert r.status_code == 422
+
+
+def test_codice_fiscale_salvato_in_maiuscolo(client):
+    r = client.post("/auth/register", json={**DATI, "codice_fiscale": "rssmra80a01f205x"})
+    assert r.status_code == 201
+    # lo stesso codice scritto in maiuscolo risulta già registrato
+    altro = {**DATI, "email": "altro@example.com"}
+    assert client.post("/auth/register", json=altro).status_code == 409
+
+
+def test_data_di_nascita_futura(client):
+    r = client.post("/auth/register", json={**DATI, "data_nascita": "2999-01-01"})
+    assert r.status_code == 422

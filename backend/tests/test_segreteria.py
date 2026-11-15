@@ -24,3 +24,13 @@ def test_la_segreteria_crea_slot_per_un_medico(client, scenario, login):
     assert client.post("/slot", json=con_medico, headers=h).status_code == 201
     # lo stesso orario si sovrappone
     assert client.post("/slot", json=con_medico, headers=h).status_code == 409
+
+def test_non_si_creano_slot_nel_passato(client, scenario, login):
+    h = login("anna.ferri@example.com")
+    inizio = datetime.now() - timedelta(days=1)
+    corpo = {
+        "medico_id": scenario["medico_id"],
+        "inizio": inizio.isoformat(),
+        "fine": (inizio + timedelta(minutes=30)).isoformat(),
+    }
+    assert client.post("/slot", json=corpo, headers=h).status_code == 422

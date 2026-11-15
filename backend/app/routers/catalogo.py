@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.medico import MedicoOut
 from app.schemas.slot import SlotOut
-from app.schemas.specialista import SpecialitaOut
+from app.schemas.specialita import SpecialitaOut
 from app.services.catalogo_service import CatalogoService, MedicoNonTrovato
 
 router = APIRouter(tags=["Catalogo"])
