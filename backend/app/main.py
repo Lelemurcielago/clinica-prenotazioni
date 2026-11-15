@@ -7,10 +7,32 @@ from app.routers import agenda, auth, catalogo, prenotazioni, slot
 
 Base.metadata.create_all(bind=engine)
 
+DESCRIZIONE = """
+API REST del **Poliambulatorio Salus** per la prenotazione di visite specialistiche.
+
+**Autenticazione**: `POST /auth/login` restituisce un token JWT valido 60 minuti, da inviare
+nell'intestazione `Authorization: Bearer <token>` (pulsante *Authorize* in questa pagina).
+
+**Ruoli**: *paziente* (si registra e prenota), *medico* (agenda e disponibilità),
+*segreteria* (vede e gestisce tutte le prenotazioni).
+
+Gli errori hanno sempre la forma `{"detail": "messaggio"}`.
+"""
+
+GRUPPI = [
+    {"name": "Autenticazione", "description": "Registrazione dei pazienti, login e profilo."},
+    {"name": "Catalogo", "description": "Specialità, medici e slot liberi. Pubblico."},
+    {"name": "Prenotazioni", "description": "Prenotazione e disdetta delle visite."},
+    {"name": "Agenda", "description": "Visite e disponibilità del medico autenticato."},
+    {"name": "Disponibilità", "description": "Creazione ed eliminazione degli slot."},
+    {"name": "Sistema", "description": "Stato del servizio."},
+]
+
 app = FastAPI(
     title="Poliambulatorio Salus - API prenotazioni",
-    description="API REST per la prenotazione di visite specialistiche.",
-    version="0.1.0",
+    description=DESCRIZIONE,
+    version="1.0.0",
+    openapi_tags=GRUPPI,
 )
 
 # Il front-end in sviluppo gira su un altro indirizzo (porta 5173):

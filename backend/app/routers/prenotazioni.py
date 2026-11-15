@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.dependencies import richiede_ruoli
 from app.models import Ruolo, Utente
+from app.schemas.errore import errori
 from app.schemas.prenotazione import PrenotazioneCreate, PrenotazioneOut
 from app.services.prenotazione_service import (
     OperazioneNonConsentita,
@@ -18,7 +19,12 @@ from app.services.prenotazione_service import (
 router = APIRouter(prefix="/prenotazioni", tags=["Prenotazioni"])
 
 
-@router.post("", response_model=PrenotazioneOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=PrenotazioneOut,
+    status_code=status.HTTP_201_CREATED,
+    responses=errori(401, 403, 404, 409, e409="Slot già prenotato o già trascorso"),
+)
 def prenota(
     dati: PrenotazioneCreate,
     utente: Utente = Depends(richiede_ruoli(Ruolo.PAZIENTE)),
@@ -33,7 +39,7 @@ def prenota(
         raise HTTPException(status.HTTP_409_CONFLICT, "Slot non disponibile")
 
 
-@router.get("", response_model=list[PrenotazioneOut])
+@router.get("", response_model=list[PrenotazioneOut], responses=errori(401, 403))
 def elenco(
     utente: Utente = Depends(richiede_ruoli(Ruolo.PAZIENTE, Ruolo.SEGRETERIA)),
     db: Session = Depends(get_db),
@@ -42,7 +48,11 @@ def elenco(
     return PrenotazioneService(db).elenco(utente)
 
 
-@router.delete("/{prenotazione_id}", response_model=PrenotazioneOut)
+@router.delete(
+    "/{prenotazione_id}",
+    response_model=PrenotazioneOut,
+    responses=errori(401, 403, 404, 409, e409="Prenotazione già annullata o visita già passata"),
+)
 def disdici(
     prenotazione_id: int,
     utente: Utente = Depends(richiede_ruoli(Ruolo.PAZIENTE, Ruolo.SEGRETERIA)),

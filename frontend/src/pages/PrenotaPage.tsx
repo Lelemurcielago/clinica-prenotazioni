@@ -82,6 +82,8 @@ export default function PrenotaPage() {
       navigate("/prenotazioni");
     } catch (err) {
       setErrore(messaggioErrore(err));
+      // Il messaggio è in cima alla pagina: lo si porta in vista
+      window.scrollTo({ top: 0, behavior: "smooth" });
       // Se lo slot è stato preso da un altro paziente, aggiorna l'elenco
       if (err instanceof ErroreApi && err.status === 409 && medicoId) {
         setSlotScelto(null);

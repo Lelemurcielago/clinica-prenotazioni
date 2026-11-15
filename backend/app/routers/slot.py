@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.dependencies import richiede_ruoli
 from app.models import Ruolo, Utente
+from app.schemas.errore import errori
 from app.schemas.slot import SlotCreate, SlotOut
 from app.services.catalogo_service import MedicoNonTrovato
 from app.services.slot_service import (
@@ -19,7 +20,12 @@ from app.services.slot_service import (
 router = APIRouter(prefix="/slot", tags=["Disponibilità"])
 
 
-@router.post("", response_model=SlotOut, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=SlotOut,
+    status_code=status.HTTP_201_CREATED,
+    responses=errori(401, 403, 404, 409, e409="Lo slot si sovrappone a uno esistente"),
+)
 def crea_slot(
     dati: SlotCreate,
     utente: Utente = Depends(richiede_ruoli(Ruolo.MEDICO, Ruolo.SEGRETERIA)),
@@ -40,7 +46,11 @@ def crea_slot(
         raise HTTPException(status.HTTP_409_CONFLICT, "Lo slot si sovrappone a uno esistente")
 
 
-@router.delete("/{slot_id}", response_model=SlotOut)
+@router.delete(
+    "/{slot_id}",
+    response_model=SlotOut,
+    responses=errori(401, 403, 404, 409, e409="Lo slot è prenotato"),
+)
 def rimuovi_slot(
     slot_id: int,
     utente: Utente = Depends(richiede_ruoli(Ruolo.MEDICO, Ruolo.SEGRETERIA)),

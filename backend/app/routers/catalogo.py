@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
+from app.schemas.errore import errori
 from app.schemas.medico import MedicoOut
 from app.schemas.slot import SlotOut
 from app.schemas.specialita import SpecialitaOut
@@ -24,7 +25,7 @@ def elenco_medici(specialita_id: int | None = None, db: Session = Depends(get_db
     return CatalogoService(db).elenco_medici(specialita_id)
 
 
-@router.get("/medici/{medico_id}/slot", response_model=list[SlotOut])
+@router.get("/medici/{medico_id}/slot", response_model=list[SlotOut], responses=errori(404))
 def slot_liberi(medico_id: int, data: date | None = None, db: Session = Depends(get_db)):
     """Slot liberi di un medico, per un giorno (AAAA-MM-GG) o da oggi in poi."""
     try:
