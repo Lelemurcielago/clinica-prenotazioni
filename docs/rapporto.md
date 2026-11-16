@@ -1141,7 +1141,7 @@ Vedi gli screenshot nel [paragrafo 5.1](#51-swagger--openapi).
 
 Il codice sorgente di front-end e back-end è disponibile nel repository Git:
 
-**<https://github.com/UTENTE/clinica-prenotazioni>**
+**<https://github.com/Lelemurcielago/clinica-prenotazioni>**
 
 Struttura:
 
